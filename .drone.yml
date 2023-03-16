@@ -1,0 +1,16 @@
+kind: pipeline
+type: kubernetes
+name: ts3exporter
+
+steps:
+- name: build-image
+  image: plugins/kaniko
+  settings:
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
+    repo: adamkoro/docker-volume-backup
+    tags:
+    - latest
+    - ${DRONE_COMMIT_SHA:0:7}
