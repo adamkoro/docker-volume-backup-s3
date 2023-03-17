@@ -89,7 +89,7 @@ echo "S3 pinged successfully"
 
 # Create tar.gz file
 echo "Creating tar.gz file"
-if ! tar -czf "/tmp/${BACKUP_NAME}-${CURRENT_DATE}.tar.gz" --exclude="${BACKUP_NAME}-${CURRENT_DATE}.tar.gz" ./; then
+if ! tar -czf "/tmp/${BACKUP_NAME}_${CURRENT_DATE}.tar.gz" --exclude="${BACKUP_NAME}_${CURRENT_DATE}.tar.gz" ./; then
     echo "Could not create tar.gz file"
     exit 1
 fi
@@ -97,7 +97,7 @@ echo "Tar.gz file created successfully"
 
 # Upload backup file to s3
 echo "Uploading backup file to S3"
-if ! mc cp "/tmp/${BACKUP_NAME}-${CURRENT_DATE}.tar.gz" "${S3_ALIAS_NAME}/${S3_BUCKET}"; then
+if ! mc cp "/tmp/${BACKUP_NAME}_${CURRENT_DATE}.tar.gz" "${S3_ALIAS_NAME}/${S3_BUCKET}"; then
     echo "Could not upload backup file to S3"
     exit 1
 fi
