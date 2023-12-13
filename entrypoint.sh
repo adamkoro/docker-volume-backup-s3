@@ -77,11 +77,11 @@ else
 fi
 
 # Create tar.gz file
-infoMessage "Creating tar.gz file"
+infoMessage "Creating backup file"
 if ! tar -czf "/tmp/${BACKUP_NAME}_${CURRENT_DATE}.tar.gz" --exclude="${BACKUP_NAME}_${CURRENT_DATE}.tar.gz" ./; then
     erroMessage "Could not create tar.gz file"
 fi
-infoMessage "Tar.gz file created successfully"
+infoMessage "Backup file created successfully"
 
 # Upload backup file to s3
 infoMessage "Uploading backup file to S3"
