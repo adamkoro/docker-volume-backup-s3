@@ -2,15 +2,45 @@ kind: pipeline
 type: docker
 name: docker-volume-backup
 
+platform:
+  os: linux
+  arch: amd64
+
+node:
+  type: hosted-amd64
+
+services:
+  - name: docker service
+    image: docker:dind
+    privileged: true
+    volumes:
+      - name: dockersock
+        path: /var/run/
+
 steps:
-- name: build-image
-  image: plugins/kaniko
-  settings:
-    username:
-      from_secret: docker_username
-    password:
-      from_secret: docker_password
-    repo: adamkoro/docker-volume-backup
-    tags:
-    - latest
-    - ${DRONE_COMMIT_SHA:0:7}
+  - name: wait for docker service
+    image: docker:dind
+    volumes:
+      - name: dockersock
+        path: /var/run/
+    commands:
+    - while true; do docker info > /dev/null 2>&1 && echo "Docker server up" && break || (echo "Docker server down. Retrying..." && sleep 1); done
+
+  - name: build image
+    image: docker:dind
+    environment:
+      REGISTRY_USER:
+        from_secret: registry_user
+      REGISTRY_PASSWORD:
+        from_secret: registry_password
+    volumes:
+      - name: dockersock
+        path: /var/run/
+    commands:
+    - docker login -u $REGISTRY_USER -p $REGISTRY_PASSWORD registry.adamkoro.com
+    - docker buildx create --use --name mybuilder
+    - docker buildx build --platform linux/amd64 -t registry.adamkoro.com/docker-volume-backup/$DRONE_BRANCH/docker-volume-backup:${DRONE_COMMIT_SHA:0:7} -t registry.adamkoro.com/docker-volume-backup/$DRONE_BRANCH/docker-volume-backup:latest . --push -f Dockerfile
+
+volumes:
+  - name: dockersock
+    temp: {}
