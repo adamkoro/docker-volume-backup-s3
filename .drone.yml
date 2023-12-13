@@ -1,6 +1,6 @@
 kind: pipeline
-type: kubernetes
-name: ts3exporter
+type: docker
+name: docker-volume-backup
 
 steps:
 - name: build-image
