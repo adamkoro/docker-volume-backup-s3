@@ -1,4 +1,4 @@
-FROM harbor.adamkoro.com/bci/bci-base:15.4
+FROM registry.suse.com/bci/bci-base:15.5
 
 WORKDIR /backup
 
@@ -11,9 +11,9 @@ S3_REGION= \
 S3_SSL=true \
 BACKUP_NAME=backup
 
-RUN zypper ref && zypper -n in tar wget gzip
-RUN wget https://dl.min.io/client/mc/release/linux-amd64/mc && install -o root -g root -m 755 mc /usr/local/bin/mc && rm mc
+RUN zypper ref && zypper -n in tar gzip python3-pip
+RUN pip install s3cmd
 
-COPY entrypoint.sh /entrypoint.sh
+COPY --chmod=0555 entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
