@@ -78,7 +78,7 @@ fi
 
 # Create tar.gz file
 infoMessage "Creating backup file"
-if ! tar -czf "/tmp/${BACKUP_NAME}_${CURRENT_DATE}.tar.gz" --exclude="${BACKUP_NAME}_${CURRENT_DATE}.tar.gz" ./; then
+if ! tar -czf "/tmp/${BACKUP_NAME}_${CURRENT_DATE}.tar.gz" .; then
     erroMessage "Could not create tar.gz file"
 fi
 infoMessage "Backup file created successfully"
