@@ -6,7 +6,7 @@ infoMessage()
     echo "INFO: ${1}"
 }
 
-erroMessage()
+errorMessage()
 {
     echo "ERROR: ${1}"
     exit 1
@@ -14,7 +14,7 @@ erroMessage()
 
 checkVariable(){
     if [ -z "${1}" ]; then
-        erroMessage "${1} is not set"
+        errorMessage "${1} is not set"
     fi
 }
 
@@ -34,18 +34,18 @@ checkVariable "$BACKUP_DIR"
 
 # Check if backup dir exists
 if [ ! -d "$BACKUP_DIR" ]; then
-    erroMessage "Backup directory does not exist"
+    errorMessage "Backup directory does not exist"
 fi
 infoMessage "Environment variables checks completed"
 
 # Check if backup dir is empty
 if [ ! "$(ls -A "${BACKUP_DIR}")" ]; then
-    erroMessage "Backup directory is empty"
+    errorMessage "Backup directory is empty"
 fi
 
 # Check if s3cmd is installed
 if ! command -v s3cmd > /dev/null 2>&1; then
-    erroMessage "s3cmd could not be found"
+    errorMessage "s3cmd could not be found"
 fi
 
 # Create the .s3cfg file
@@ -69,7 +69,7 @@ fi
 # Create the bucket if it does not exist
 if ! s3cmd la --host="${DEFAULT_URL_PREFIX}://${S3_ENDPOINT#*.}" | grep "${S3_BUCKET}" > /dev/null; then
     if ! s3cmd mb s3://"${S3_BUCKET}" > /dev/null; then
-        erroMessage "Could not create bucket"
+        errorMessage "Could not create bucket"
     fi
     infoMessage "Bucket created successfully"
 else
@@ -79,13 +79,13 @@ fi
 # Create tar.gz file
 infoMessage "Creating backup file"
 if ! tar -czf "/tmp/${BACKUP_NAME}_${CURRENT_DATE}.tar.gz" .; then
-    erroMessage "Could not create tar.gz file"
+    errorMessage "Could not create tar.gz file"
 fi
 infoMessage "Backup file created successfully"
 
 # Upload backup file to s3
 infoMessage "Uploading backup file to S3"
 if ! s3cmd put "/tmp/${BACKUP_NAME}_${CURRENT_DATE}.tar.gz" "s3://${S3_BUCKET}" > /dev/null; then
-    erroMessage "Could not upload backup file to S3"
+    errorMessage "Could not upload backup file to S3"
 fi
 infoMessage "Backup completed successfully"
