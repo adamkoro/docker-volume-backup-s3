@@ -29,7 +29,7 @@ This image is only for backup. It doesn't have any restore functionality.
 
 **IMPORTANT**: You need to mount volume with backup files to `/backup` directory. Make sure mounted `read-only` mode.
 
-Backup file name: `BACKUP_NAME-YYYY-MM-DD-HH-MM-SS.tar.gz` that's why you have to set `BACKUP_NAME` environment variable.
+Backup file name: `BACKUP_NAME_YYYY-MM-DD-HH-MM-SS.tar.gz` that's why you have to set `BACKUP_NAME` environment variable.
 
 ### Docker
 
