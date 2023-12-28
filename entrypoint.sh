@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 CURRENT_DATE=$(date +%Y-%m-%d_%H-%M-%S)
 
 infoMessage()
@@ -23,14 +23,17 @@ infoMessage "Current date: ${CURRENT_DATE}"
 infoMessage "Environment variables checks started"
 
 # Check envs are not empty
-checkVariable "$S3_BUCKET"
-checkVariable "$S3_ENDPOINT"
-checkVariable "$S3_ACCESS_KEY"
-checkVariable "$S3_ACCESS_KEY"
-checkVariable "$S3_REGION"
-checkVariable "$S3_SSL"
-checkVariable "$BACKUP_NAME"
-checkVariable "$BACKUP_DIR"
+checkVariable "${S3_BUCKET}"
+checkVariable "${S3_ENDPOINT}"
+checkVariable "${S3_ACCESS_KEY}"
+checkVariable "${S3_ACCESS_KEY}"
+checkVariable "${S3_REGION}"
+checkVariable "${S3_SSL}"
+checkVariable "${BACKUP_NAME}"
+checkVariable "${BACKUP_DIR}"
+checkVariable "${NUMBER_OF_BACKUPS}"
+# Replace all "_" to "-"
+BACKUP_NAME="${BACKUP_NAME//_/-}"
 
 # Check if backup dir exists
 if [ ! -d "$BACKUP_DIR" ]; then
@@ -68,7 +71,7 @@ fi
 
 # Create the bucket if it does not exist
 if ! s3cmd la --host="${DEFAULT_URL_PREFIX}://${S3_ENDPOINT#*.}" | grep "${S3_BUCKET}" > /dev/null; then
-    if ! s3cmd mb s3://"${S3_BUCKET}" > /dev/null; then
+    if ! s3cmd mb --host="${DEFAULT_URL_PREFIX}://${S3_ENDPOINT#*.}" s3://"${S3_BUCKET}" > /dev/null; then
         errorMessage "Could not create bucket"
     fi
     infoMessage "Bucket created successfully"
@@ -85,7 +88,26 @@ infoMessage "Backup file created successfully"
 
 # Upload backup file to s3
 infoMessage "Uploading backup file to S3"
-if ! s3cmd put "/tmp/${BACKUP_NAME}_${CURRENT_DATE}.tar.gz" "s3://${S3_BUCKET}" > /dev/null; then
+if ! s3cmd put --host="${DEFAULT_URL_PREFIX}://${S3_ENDPOINT#*.}" "/tmp/${BACKUP_NAME}_${CURRENT_DATE}.tar.gz" "s3://${S3_BUCKET}" > /dev/null; then
     errorMessage "Could not upload backup file to S3"
 fi
-infoMessage "Backup completed successfully"
+infoMessage "Backup uploaded successfully"
+
+# Delete old backups 
+infoMessage "Deleting old backups"
+FILE_LIST=()
+while IFS= read -r line; do
+    FILE_LIST+=("$line")
+done < <(s3cmd ls --host="${DEFAULT_URL_PREFIX}://${S3_ENDPOINT#*.}" s3://"${S3_ENDPOINT%%.*}"/"${S3_BUCKET}/" | awk 'NR>1 && $2 !~ /DIR/ && $4 ~ /'"${BACKUP_NAME}"'_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}-[0-9]{2}\.tar\.gz$/ {print $NF}')
+NUMBER_OF_CURRENT_BACKUPS=${#FILE_LIST[@]}
+if [[ "${NUMBER_OF_CURRENT_BACKUPS}" -gt "${NUMBER_OF_BACKUPS}" ]]; then
+    OLD_FILES_TO_DELETE=$((NUMBER_OF_CURRENT_BACKUPS-NUMBER_OF_BACKUPS))
+    for ((i=0; i<"${OLD_FILES_TO_DELETE}"; i++)); do
+        s3cmd del --host="${DEFAULT_URL_PREFIX}://${S3_ENDPOINT#*.}" "${FILE_LIST[$i]}"
+    done
+    infoMessage "Deleted $OLD_FILES_TO_DELETE old backups"
+else
+    infoMessage "Not deleting any of the backups"
+fi
+
+infoMessage "Backup completed"
