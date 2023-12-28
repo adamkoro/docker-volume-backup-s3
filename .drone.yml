@@ -39,7 +39,7 @@ steps:
     commands:
     - docker login -u $REGISTRY_USER -p $REGISTRY_PASSWORD registry.adamkoro.com
     - docker buildx create --use --name mybuilder
-    - docker buildx build --platform linux/amd64 -t registry.adamkoro.com/docker-volume-backup/$DRONE_BRANCH/docker-volume-backup:${DRONE_COMMIT_SHA:0:7} -t registry.adamkoro.com/docker-volume-backup/$DRONE_BRANCH/docker-volume-backup:latest . --push -f Dockerfile
+    - docker buildx build --platform linux/amd64 -t registry.adamkoro.com/docker-volume-backup/${DRONE_BRANCH}/docker-volume-backup:${DRONE_COMMIT_SHA:0:7} -t registry.adamkoro.com/docker-volume-backup/${DRONE_BRANCH}/docker-volume-backup:latest . --push -f Dockerfile
     when:
       branch: 
         exclude:
