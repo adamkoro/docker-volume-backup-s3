@@ -6,7 +6,6 @@
 ![Docker Stars](https://img.shields.io/docker/stars/adamkoro/docker-volume-backup)
 ![GitHub](https://img.shields.io/github/license/adamkoro/docker-volume-backup-s3)
 
-
 Simple docker volume backup to S3.
 
 Create tar.gz file from docker volume and upload it to S3.
@@ -24,6 +23,7 @@ This image is only for backup. It doesn't have any restore functionality.
 | `S3_REGION` | S3 region | `empty` |
 | `S3_SSL` | S3 ssl usage | `true` |
 | `BACKUP_NAME` | Name of the tar.gz file | `backup` |
+| `NUMBER_OF_BACKUPS` | Number of the files in keep | `2` |
 
 ## Usage
 
