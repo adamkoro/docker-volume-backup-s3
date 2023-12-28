@@ -26,7 +26,7 @@ steps:
     commands:
     - while true; do docker info > /dev/null 2>&1 && echo "Docker server up" && break || (echo "Docker server down. Retrying..." && sleep 1); done
 
-  - name: $DRONE_BRANCH build image
+  - name: build image
     image: docker:dind
     environment:
       REGISTRY_USER:
