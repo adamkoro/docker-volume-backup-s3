@@ -56,9 +56,9 @@ steps:
       - name: dockersock
         path: /var/run/
     commands:
-    - docker login -u $REGISTRY_USER -p $REGISTRY_PASSWORD registry.adamkoro.com
-    - docker buildx create --use --name mybuilder
-    - docker buildx build --platform linux/amd64 -t adamkoro/docker-volume-backup:${DRONE_COMMIT_SHA:0:7} -t adamkoro/docker-volume-backup:latest -t adamkoro/docker-volume-backup:${DRONE_TAG} . --push -f Dockerfile
+    - "docker login -u $REGISTRY_USER -p $REGISTRY_PASSWORD registry.adamkoro.com"
+    - "docker buildx create --use --name mybuilder"
+    - "docker buildx build --platform linux/amd64 -t adamkoro/docker-volume-backup:${DRONE_COMMIT_SHA:0:7} -t adamkoro/docker-volume-backup:latest -t adamkoro/docker-volume-backup:${DRONE_TAG} . --push -f Dockerfile"
     when:
       branch:
         include:
