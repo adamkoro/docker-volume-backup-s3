@@ -64,6 +64,27 @@ steps:
         include:
         - "main"
 
+  - name: build prod tag image
+    image: docker:dind
+    environment:
+      REGISTRY_USER:
+        from_secret: docker_user
+      REGISTRY_PASSWORD:
+        from_secret: docker_pass
+    volumes:
+      - name: dockersock
+        path: /var/run/
+    commands:
+    - "docker login -u $REGISTRY_USER -p $REGISTRY_PASSWORD"
+    - "docker buildx create --use --name mybuilder"
+    - "docker buildx build --platform linux/amd64 -t adamkoro/docker-volume-backup:${DRONE_TAG} . --push -f Dockerfile"
+    when:
+      branch:
+        include:
+        - "main"
+      event: 
+        - tag
+
 trigger:
   event:
   - push
