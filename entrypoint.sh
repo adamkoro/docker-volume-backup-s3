@@ -71,7 +71,7 @@ fi
 
 # Create the bucket if it does not exist
 if ! s3cmd la --host="${DEFAULT_URL_PREFIX}://${S3_ENDPOINT#*.}" | grep "${S3_BUCKET}" > /dev/null; then
-    if ! s3cmd mb --host="${DEFAULT_URL_PREFIX}://${S3_ENDPOINT#*.}" s3://"${S3_BUCKET}" > /dev/null; then
+    if ! s3cmd mb s3://"${S3_BUCKET}" > /dev/null; then
         errorMessage "Could not create bucket"
     fi
     infoMessage "Bucket created successfully"
@@ -88,7 +88,7 @@ infoMessage "Backup file created successfully"
 
 # Upload backup file to s3
 infoMessage "Uploading backup file to S3"
-if ! s3cmd put --host="${DEFAULT_URL_PREFIX}://${S3_ENDPOINT#*.}" "/tmp/${BACKUP_NAME}_${CURRENT_DATE}.tar.gz" "s3://${S3_BUCKET}" > /dev/null; then
+if ! s3cmd put "/tmp/${BACKUP_NAME}_${CURRENT_DATE}.tar.gz" s3://"${S3_BUCKET}" > /dev/null; then
     errorMessage "Could not upload backup file to S3"
 fi
 infoMessage "Backup uploaded successfully"
