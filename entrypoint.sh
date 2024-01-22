@@ -3,35 +3,34 @@ CURRENT_DATE=$(date +%Y-%m-%d_%H-%M-%S)
 
 infoMessage()
 {
-    echo "INFO: ${1}"
+    echo "$(date +"%Y-%m-%dT%H:%M:%S%:z") - [INFO] ${*}"
 }
 
 errorMessage()
 {
-    echo "ERROR: ${1}"
+    echo "$(date +"%Y-%m-%dT%H:%M:%S%:z") - [ERROR] ${*}" >&2
     exit 1
 }
 
 checkVariable(){
     if [ -z "${1}" ]; then
-        errorMessage "${1} is not set"
+        errorMessage "${2} variable is not set"
     fi
 }
 
 infoMessage "Starting backup"
-infoMessage "Current date: ${CURRENT_DATE}"
 infoMessage "Environment variables checks started"
 
 # Check envs are not empty
-checkVariable "${S3_BUCKET}"
-checkVariable "${S3_ENDPOINT}"
-checkVariable "${S3_ACCESS_KEY}"
-checkVariable "${S3_ACCESS_KEY}"
-checkVariable "${S3_REGION}"
-checkVariable "${S3_SSL}"
-checkVariable "${BACKUP_NAME}"
-checkVariable "${BACKUP_DIR}"
-checkVariable "${NUMBER_OF_BACKUPS}"
+checkVariable "${S3_BUCKET}" "S3_BUCKET"
+checkVariable "${S3_ENDPOINT}" "S3_ENDPOINT"
+checkVariable "${S3_ACCESS_KEY}" "S3_ACCESS_KEY"
+checkVariable "${S3_SECRET_KEY}" "S3_SECRET_KEY"
+checkVariable "${S3_REGION}" "S3_REGION"
+checkVariable "${S3_SSL}" "S3_SSL"
+checkVariable "${BACKUP_NAME}" "BACKUP_NAME"
+checkVariable "${BACKUP_DIR}" "BACKUP_DIR"
+checkVariable "${NUMBER_OF_BACKUPS}" "NUMBER_OF_BACKUPS"
 # Replace all "_" to "-"
 BACKUP_NAME="${BACKUP_NAME//_/-}"
 
@@ -108,6 +107,14 @@ if [[ "${NUMBER_OF_CURRENT_BACKUPS}" -gt "${NUMBER_OF_BACKUPS}" ]]; then
     infoMessage "Deleted $OLD_FILES_TO_DELETE old backups"
 else
     infoMessage "Not deleting any of the backups"
+fi
+
+infoMessage "Deleting local create file"
+if [ -f "/tmp/${BACKUP_NAME}_${CURRENT_DATE}.tar.gz" ]; then
+    rm -f "/tmp/${BACKUP_NAME}_${CURRENT_DATE}.tar.gz"
+    infoMessage "Successfully deleted"
+else
+    errorMessage "Local file does not exits"
 fi
 
 infoMessage "Backup completed"
