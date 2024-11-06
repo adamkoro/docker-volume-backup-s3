@@ -78,6 +78,19 @@ else
     infoMessage "Bucket already exists"
 fi
 
+# Create temp dir
+infoMessage "Creating temp dir"
+TMP_DIR=$(mktemp -d)
+
+# Copy to temp dir
+infoMessage "Coping files to temp dir"
+if ! cp -a ./* ${TMP_DIR}; then
+    errorMessage "Could not copy to temp dir"
+fi
+infoMessage "Copy to temp dir was successfully"
+
+cd ${TMP_DIR}
+
 # Create tar.gz file
 infoMessage "Creating backup file"
 if ! tar -czf "/tmp/${BACKUP_NAME}_${CURRENT_DATE}.tar.gz" .; then
@@ -116,5 +129,7 @@ if [ -f "/tmp/${BACKUP_NAME}_${CURRENT_DATE}.tar.gz" ]; then
 else
     errorMessage "Local file does not exits"
 fi
+
+rm -rf ${TMP_DIR}
 
 infoMessage "Backup completed"
