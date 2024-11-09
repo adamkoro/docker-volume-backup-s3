@@ -84,12 +84,12 @@ TMP_DIR=$(mktemp -d)
 
 # Copy to temp dir
 infoMessage "Coping files to temp dir"
-if ! cp -a ./* ${TMP_DIR}; then
+if ! cp -a ./* "${TMP_DIR}"; then
     errorMessage "Could not copy to temp dir"
 fi
 infoMessage "Copy to temp dir was successfully"
 
-cd ${TMP_DIR}
+cd "${TMP_DIR}" || exit
 
 # Create tar.gz file
 infoMessage "Creating backup file"
@@ -130,6 +130,6 @@ else
     errorMessage "Local file does not exits"
 fi
 
-rm -rf ${TMP_DIR}
+rm -rf "${TMP_DIR}"
 
 infoMessage "Backup completed"
